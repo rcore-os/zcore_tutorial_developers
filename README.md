@@ -14,6 +14,8 @@ https://fuchsia.dev/fuchsia-src/reference （Zircon 官方文档）
 https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/wrj-thesis.pdf （wrj，Rust语言操作系统的设计与实现）
 https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/pql-thesis.pdf （pql，zCore操作系统内核的设计与实现）
 
+https://github.com/rustcc/writing-an-os-in-rust/blob/master/12-async-await.md （Rust中的Async /Await）
+
 # 现有的zcore_tutorial文档主要从这些方面展开描述
 
 1. 内核对象
