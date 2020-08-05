@@ -33,4 +33,4 @@ https://fuchsia.dev/fuchsia-src/reference （Zircon 官方文档）
 4.4. 系统调用                       <zircon-syscall\src>
 
 # zCore项目整理架构图
-![](pics\1.png)
+![file](http://www.nuanyun.cloud/wp-content/uploads/2020/08/5f2a17fc7d7b3.png)
