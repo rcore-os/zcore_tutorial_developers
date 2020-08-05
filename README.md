@@ -17,6 +17,7 @@ zcore_tutorial文档撰写工作以及单元测试工作组
 
 [pql，zCore操作系统内核的设计与实现](https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/pql-thesis.pdf)
 
+[Rust中的Async /Await](https://github.com/rustcc/writing-an-os-in-rust/blob/master/12-async-await.md)
 # 现有的zcore_tutorial文档主要从这些方面展开描述
 0. Fuchsia OS 和 Zircon 微内核
 
