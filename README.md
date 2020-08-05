@@ -15,6 +15,8 @@ https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/wrj-thesis.pdf （wr
 https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/pql-thesis.pdf （pql，zCore操作系统内核的设计与实现）
 
 # 现有的zcore_tutorial文档主要从这些方面展开描述
+0. Fuchsia OS 和 Zircon 微内核
+
 
 1. 内核对象
 1.1. 初识内核对象   
@@ -32,7 +34,7 @@ https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/pql-thesis.pdf （pq
 4. 用户程序(张文龙，彭晓)  
 4.1. Zircon 用户程序                
 4.2. 加载 ELF 文件                      <zircon-object\src\util\elf_loader.rs>  
-4.3. 上下文切换                     
+4.3. 上下文切换                       
 4.4. 系统调用                           <zircon-syscall\src>
 
 # zCore项目整理架构图
