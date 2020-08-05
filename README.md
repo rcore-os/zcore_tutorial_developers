@@ -7,12 +7,15 @@ zcore_tutorial文档撰写工作以及单元测试工作组
 每个人尽量把自己学到的东西写成一个文档，做到低耦合、规范化，命名清晰。后人在前人的基础上迭代修改，最后项目完成的时候进一步整理一下，可以merge到zcore仓库。
 
 # 主要相关链接
-https://github.com/rcore-os/zCore （zCore 仓库）  
-https://rcore-os.github.io/zCore/zircon_object （zCore 代码文档）  
-https://fuchsia.dev/fuchsia-src/reference （Zircon 官方文档）  
+ [zCore仓库](https://github.com/rcore-os/zCore)  
 
-https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/wrj-thesis.pdf （wrj，Rust语言操作系统的设计与实现）
-https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/pql-thesis.pdf （pql，zCore操作系统内核的设计与实现）
+[zCore代码文档](https://rcore-os.github.io/zCore/zircon_object)
+
+[Zircon 官方文档](https://fuchsia.dev/fuchsia-src/reference)
+
+[wrj，Rust语言操作系统的设计与实现](https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/wrj-thesis.pdf )
+
+[pql，zCore操作系统内核的设计与实现](https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/pql-thesis.pdf)
 
 # 现有的zcore_tutorial文档主要从这些方面展开描述
 0. Fuchsia OS 和 Zircon 微内核
