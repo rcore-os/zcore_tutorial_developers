@@ -11,8 +11,8 @@ https://github.com/rcore-os/zCore （zCore 仓库）
 https://rcore-os.github.io/zCore/zircon_object （zCore 代码文档）  
 https://fuchsia.dev/fuchsia-src/reference （Zircon 官方文档）  
 
-https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/wrj-thesis.pdf（wrj，Rust语言操作系统的设计与实现）
-https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/pql-thesis.pdf（pql，zCore操作系统内核的设计与实现）
+https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/wrj-thesis.pdf （wrj，Rust语言操作系统的设计与实现）
+https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/pql-thesis.pdf （pql，zCore操作系统内核的设计与实现）
 
 # 现有的zcore_tutorial文档主要从这些方面展开描述
 
