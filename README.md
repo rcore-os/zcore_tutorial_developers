@@ -7,6 +7,8 @@ zcore_tutorial文档撰写工作以及单元测试工作组
 每个人尽量把自己学到的东西写成一个文档，做到低耦合、规范化，命名清晰。后人在前人的基础上迭代修改，最后项目完成的时候进一步整理一下，可以merge到zcore仓库。
 
 # 主要相关链接
+[2020年操作系统专题训练大实验-zCore文档WiKi页面](http://os.cs.tsinghua.edu.cn/oscourse/OsTrain2020/g2)
+
 [zCore仓库](https://github.com/rcore-os/zCore)  
 
 [zCore代码文档](https://rcore-os.github.io/zCore/zircon_object)
