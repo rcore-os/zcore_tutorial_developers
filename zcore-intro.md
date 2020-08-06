@@ -6,7 +6,7 @@
 
 [zCore](https://github.com/rcore-os/zCore) 的整体结构/项目设计图如下：
 
-![img](zcore-intro/structure.svg)
+![img](img/structure.svg)
 
 zCore的设计主要有两个出发点：
 
@@ -33,7 +33,7 @@ zCore 设计的顶层是上层操作系统，比如 zCore、rCore、Zircon LibOS
 
 zCore 内核运行时组件层次概况如下：
 
-![image-20200805123801306](zcore-intro/image-20200805123801306.png)
+![image-20200805123801306](img/image-20200805123801306.png)
 
 在zCore启动过程中，会初始化物理页帧分配器、堆分配器、线程调度器等各个组成部分。并委托 zircon-­loader 进行内核对象的初始化创建过程，然后进入用户态的启动过程开始执行。每当用户态触发系统调用进入内核态，系统调用处理例程将会通过已实现的内核对象的功能来对服务请求进行处理；而对应的内核对象的内部实现所需要的各种底层操作，则是通过 HAL 层接口由各个内核组件负责提供。
 
