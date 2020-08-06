@@ -1,5 +1,5 @@
 Editing...
-# [zCore程序(ELF加载与动态链接](https://fuchsia.dev/fuchsia-src/concepts/booting/program_loading)
+# [zCore程序(ELF加载与动态链接)](https://fuchsia.dev/fuchsia-src/concepts/booting/program_loading)
 
 zCore内核不直接参与正常程序的加载，而是提供了一些用户态程序加载时可用的模块。如虚拟内存对象(VMO)、进程(processes)和线程(threads)这些。 
 
@@ -20,15 +20,22 @@ zCore内核不直接参与正常程序的加载，而是提供了一些用户态
 1. 内核按照名称加载文件，并检查它是ELF还是系统支持的其他类型的文件。  
 
 
-2. 内核根据ELF文件的```PT_LOAD```程序头来映射ELF映像。对于```ET_EXEC```文件，系统会将程序中的各段(Section)放到```p_vaddr```中所指定内存中的固定地址。对于```ET_DYN```文件，系统将加载程序第一个```PT_LOAD```的基地址，然后根据它们的```p_vaddr```相对于第一个section的```p_vaddr```放置后面的section。   
+2. 内核根据ELF文件的```PT_LOAD```程序头来映射ELF映像。对于```ET_EXEC```文件，系统会将程序中的各段(Section)放到```p_vaddr```中所指定内存中的固定地址。对于```ET_DYN```文件，系统将加载程序第一个```PT_LOAD```的基地址，然后根据它们的```p_vaddr```相对于第一个section的```p_vaddr```放置后面的section。 通常来说该基地址是通过地址随机化(ASLR)来产生的。  
 
 
-3. 若ELF文件中有一个PT_INTERP程序头..  
+3. 若ELF文件中有一个```PT_INTERP```程序头,  它的部分内容(ELF文件中```p_offset```和```p_filesz```给出的一些字节)被当做为一个文件名，改文件名用于寻找另一个称为“ELF解释器”的ELF文件。上述这类ELF文件必须是```ET_DYN```文件。内核采用同样的方式将该类ELF文件加载，但是所加载的地址是自定的。该ELF“解释器”通常指的是被命名为```/lib/ld.so.1``` 或者是 ```/lib/ld-linux.so.2```的ELF动态链接器。
 
-4. 内核为初始的线程设置了寄存器和堆栈的内容，并在PC寄存器已指向特定入口点处的情况下启动线程。  
-Todo:  
-+ Entry Point的确定方式？  
-+ 内核如何设置寄存器和堆栈？  
+
+
+4. 内核为初始的线程设置了寄存器和堆栈的内容，并在PC寄存器已指向特定程序入口处(Entry Point)的情况下启动线程。 
+    + 程序入口处(Entry Point)指的是ELF文件头中 ```e_entry```的值，它会根据程序基地址(base address)做相应的调整。如果这是一个带有```PT_INTERP```的ELF文件，则它的入口点不在它本身，而是被设置在动态链接器中。
+    + 内核通过设置寄存器和堆栈来使得程序能够接收特定的参数，环境变量以及其它有实际用途的辅助向量。寄存器和堆栈的设置方法遵循了一种汇编级别的协议方式。若ELF文件运行时依赖动态链接，即带有```PT_INTERP```。则寄存器和堆栈中将包括来自该可执行文件的ELF文件头中的基地址、入口点和程序头部表地址信息，这些信息可允许动态链接器在内存中找到该可执行文件的ELF动态链接元数据，以实现动态链接。当动态链接启动完成后，动态链接器将跳转到该可执行文件的入口点地址。
+
+
+
+<!-- Zircon program loading is inspired by this tradition, but does it somewhat differently. A key reason for the traditional pattern of loading the executable before loading the dynamic linker is that the dynamic linker's randomly-chosen base address must not intersect with the fixed addresses used by an ET_EXEC executable file. Zircon does not support fixed-address program loading (ELF ET_EXEC files) at all, only position-independent executables or PIEs, which are ELF ET_DYN files. --> 
+
+
 
 ```rust
     pub fn sys_process_start(
