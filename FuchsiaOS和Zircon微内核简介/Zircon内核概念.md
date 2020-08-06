@@ -78,10 +78,17 @@ Zircon是面向对象的内核, 在用户态下的代码几乎完全通过对象
 
 
 
-## 对象（Object）和信号（Signal）
+# 对象（Object）和信号（Signal）
 
 `Object`至多可以可包含32个信号（通过`zx_signals_t`数据结构和ZX_*SIGNAL*的定义），它们是表示当前一些状态信息。
 
 例如，`zx_channel_readable`表示这个通道的终点有消息可读。`zx_process_terminated`表示这个进程停止运行。
 
 线程可以等待一个或多个`Object`被信号激活。
+
+大多数对象是可以等待的， 但是`Port`是不可等待的一个例子。可以使用`zx_object_get_info()`函数查看该对象是否可等待(`waitable`)
+
+
+
+
+
