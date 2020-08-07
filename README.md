@@ -48,3 +48,11 @@ zcore_tutorial文档撰写工作以及单元测试工作组
 # zCore项目整理架构图
 ![file](http://www.nuanyun.cloud/wp-content/uploads/2020/08/5f2a17fc7d7b3.png)
 
+
+
+
+
+# 文件目录描述
+
+- [Zircon内核概念](/FuchsiaOS和Zircon微内核简介/Zircon内核概念.md)介绍了zircon中的一些常见的概念, 熟悉概念之后在`Tutorial`中不再赘述
+- `chxx`文件夹分别对应每一章节的内容
