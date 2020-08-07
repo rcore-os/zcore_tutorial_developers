@@ -13,25 +13,57 @@ Zircon的进程是传统意义上程序的实例：由一个或多个线程执�
 进程的定义如下：
 ```rust
 // zircon-object/src/task/process.rs
+// 进程
 #[allow(dead_code)]
 pub struct Process {
     /// 内核对象核心结构，定义于 zircon-object/src/object/mod.rs 
     base: KObjectBase,
-    /// 引用计数？ 定义于 zircon-object/src/object/mod.rs
+    /// 引用计数，定义于 zircon-object/src/object/mod.rs
     _counter: CountHelper,
     /// 属于的作业，定义于 zircon-object/src/task/job.rs
     job: Arc<Job>,
-    /// 
+    /// policy，定义于 zircon-object/src/task/job_policy.rs
     policy: JobPolicy,
+    /// VMAR，定义于 zircon-object/src/vm/vmar.rs
     vmar: Arc<VmAddressRegion>,
     ext: Box<dyn Any + Send + Sync>,
+    /// Exceptionate(Kernel-owned exception channel endpoint)，定义于 zircon-object/src/task/exception.rs
     exceptionate: Arc<Exceptionate>,
     debug_exceptionate: Arc<Exceptionate>,
+    /// 进程的内部可变部分
     inner: Mutex<ProcessInner>,
+}
+
+// 进程的内部可变部分
+#[derive(Default)]
+struct ProcessInner {
+    /// 进程的状态
+    status: Status,
+    max_handle_id: u32,
+    /// 句柄(Handle)，定义于 zircon-object/src/object/handle.rs
+    handles: HashMap<HandleValue, (Handle, Vec<Sender<()>>)>,
+    /// Futex(A primitive for creating userspace synchronization tools)，定义于
+    futexes: HashMap<usize, Arc<Futex>>,
+    threads: Vec<Arc<Thread>>,
+
+    // special info
+    debug_addr: usize,
+    dyn_break_on_load: usize,
+    critical_to_job: Option<(Arc<Job>, bool)>,
+}
+
+// 进程的状态
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub enum Status {
+    Init,
+    Running,
+    Exited(i64),
 }
 ```
 
 ## 句柄和权限
+
+
 
 ## 实现第一个内核对象
 
