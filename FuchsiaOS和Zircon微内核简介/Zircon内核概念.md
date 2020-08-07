@@ -2,6 +2,10 @@
 
 Zircon内核管理许多不同类型的对象。本质上讲，这些对象是能够通过系统调用直接访问，并实现了Dispatcher接口的C++类。对象的实现位于[kernel object](https://fuchsia.dev/fuchsia-src/reference/kernel_objects/objects)目录下。
 
+接下来将会介绍一些zircon中一些常见的概念。
+
+
+
  
 
 # 内核对象ID
@@ -91,4 +95,10 @@ Zircon是面向对象的内核, 在用户态下的代码几乎完全通过对象
 
 
 
+
+
+
+# 虚拟内存地址区域(VMAR)
+
+虚拟内存地址空间的一个连续区域
 
