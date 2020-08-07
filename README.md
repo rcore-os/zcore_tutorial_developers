@@ -9,9 +9,11 @@ zcore_tutorial文档撰写工作以及单元测试工作组
 # 主要相关链接
 [2020年操作系统专题训练大实验-zCore文档WiKi页面](http://os.cs.tsinghua.edu.cn/oscourse/OsTrain2020/g2)
 
-[zCore仓库](https://github.com/rcore-os/zCore)  
+[zCore仓库](https://github.com/rcore-os/zCore)
 
 [zCore代码文档](https://rcore-os.github.io/zCore/zircon_object)
+
+[zCore-Tutorial](https://github.com/rcore-os/zCore-Tutorial)
 
 [Zircon 官方文档](https://fuchsia.dev/fuchsia-src/reference)
 
