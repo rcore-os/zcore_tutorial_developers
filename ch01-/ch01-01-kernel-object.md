@@ -349,6 +349,8 @@ impl KObjectBase {
 pub struct DummyObject;
 ```
 
+![image-20200806202855009](ch01-01-kernel-object.assets/image-20200806202855009.png)
+
 ## 总结
 
 在这一节中我们用 Rust 语言实现了 Zircon 最核心的**内核对象**概念。在此过程中涉及到 Rust 的一系列语言特性和设计模式：
