@@ -35,7 +35,7 @@ zcore_tutorial文档撰写工作以及单元测试工作组
 2.2. ``硬件抽象层``与``异步运行时``     <kernel_hal(bare)> async 《zCore 操作系统内核的设计与实现》中有相关描述  
 2.3. 线程管理：Thread 对象              <zircon-object\src\task\thread.rs>std::thread(8.4日)  
 2.4. 进程管理：Process 与 Job 对象      <zircon-object\src\task\job.rs>  <zircon-object\src\task\job_policy.rs>  
-3. 内存管理(卢睿博，张驰斌)  
+3. 内存管理(卢睿博，姚宇飞)  
 3.1. Zircon 内存管理模型  
 3.2. 物理内存：VMO 对象                 <zircon-object\src\vm\vmo\physical.rs>   
 3.3. 虚拟内存：VMAR 对象                <zircon-object\src\vm\vmar.rs>  
