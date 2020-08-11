@@ -349,7 +349,7 @@ impl KObjectBase {
 pub struct DummyObject;
 ```
 
-![](../images/ch01-01-kernel-object/kobject.png)
+![](img/kobject.png)
 
 ## 总结
 
