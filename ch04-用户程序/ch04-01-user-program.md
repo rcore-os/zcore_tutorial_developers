@@ -109,6 +109,82 @@ pub fn run_userboot(images: &Images<impl AsRef<[u8]>>, cmdline: &str) -> Arc<Pro
 }
 ```
 
+### bootsvc
+bootsvc 通常是usermode加载的第一个程序（与userboot不同，userboot是由内核加载的）。bootsvc提供了几种系统服务：
++ 包含bootfs（/boot）内容的文件系统服务（初始的bootfs映像包含用户空间系统需要运行的所有内容:
+  - 可执行文件
+  - 共享库和数据文件（包括设备驱动程序或更高级的文件系统的实现）
++ 从bootfs加载的加载程序服务
+
+
+todo：
+### bin/component_manager
+### sh / device_manager  
+
+
+
+
+
+
+## 用户程序的组成
+
+> 内核不直接参与用户程序的加载工作（第一个进程除外）
+>
+> 用户程序强制使用 PIC 和 PIE（位置无关代码）
+>
+> 内存地址空间组成：Program, Stack, vDSO, Dylibs
+>
+> 通过 Channel 传递启动信息和句柄
+
+
+
+
+
+
+
+## 加载 ELF 文件
+
+> 简单介绍 ELF 文件的组成结构
+>
+> 实现 VmarExt::load_from_elf 函数
+
+
+
+
+
+
+
+
+## 系统调用的跳板：vDSO
+
+#### 介绍 vDSO 的作用
+VDSO （Dynamic Shared Object），Zircon vDSO 是 Zircon 内核访问系统调用的唯一方法。它不是从文件系统中的ELF文件加载的，而是由内核直接提供 vDSO 镜像。
+
+> 它是一个用户态运行的代码，被封装成 shared librarylibzircon.so elf文件。这个elf .so 文件装载不是放在文件系统中，而是由内核提供。它被整合在内核image中。
+
+vDSO放在内核中（准确说是在内核映像中的一个地方）。内核启动时，会通过计算得到它所在的物理页，然后在创建用户进程时，program loader（userboot 第一个进程会用特别的方式）会把这物理页mapping到用户进程的虚地址进程空间，且位置是随机和只读的。进程内的程序无法修改它。
+
+#### vDSO syscall 如何修改 vDSO 源码（libzircon）将 syscall 改为函数调用
+
+<!-- 当vsdo 用svc 指令后，这时CPU exception进入内核，到 expections.S 中的 sync_exception 宏（不同ELx， sync_exception的参数不一样）。然后这个 sync_exception 宏中先做一些现场保存的工作， 然后jump到 arm64_syscall_dispatcher 宏。
+
+进入arm64_syscall_dispatcher宏后， 先做一些syscall number检查，然后syscall number 跳到 call_wrapper_table 函数表中相应index项的函数中去（call_wrapper_table 像一个一维的函数指针的数组，syscall number 作index，jump到相应的wrapper syscall function 函数中去）。 -->
+
+#### 加载 vDSO 时修改 vDSO 代码段，填入跳转地址
+
+
+
+
+
+
+
+## 第一个用户程序：userboot
+
+> 实现 zircon-loader 中的 run_userboot 函数
+> 
+> 能够进入用户态并在第一个系统调用时跳转回来
+
+
 #### 从`bootfs`加载第一个真正意义上的用户程序。
 主要相关代码：
 > zircon-loader/src/lib.rs
@@ -156,73 +232,3 @@ Zircon中具体的实现流程如下：
     ```
 3. 然后userboot以随机地址加载vDSO。它使用标准约定启动新进程，并给它传递一个channel句柄和vDSO基址。
    `zircon_object::util::elf_loader::map_from_elf`
-
-
-
-### bootsvc
-bootsvc 通常是usermode加载的第一个程序（与userboot不同，userboot是由内核加载的）。bootsvc提供了几种系统服务：
-+ 包含bootfs（/boot）内容的文件系统服务（初始的bootfs映像包含用户空间系统需要运行的所有内容:
-  - 可执行文件
-  - 共享库和数据文件（包括设备驱动程序或更高级的文件系统的实现）
-+ 从bootfs加载的加载程序服务
-
-#### bootfs 
-
-> ZBI 与 bootfs：ZBI 中包含初始文件系统 bootfs，内核将 ZBI 完整传递给 userboot，由它负责解析并对其它进程提供文件服务
-
-
-### bin/component_manager
-
-
-
-
-
-## 用户程序的组成
-
-> 内核不直接参与用户程序的加载工作（第一个进程除外）
->
-> 用户程序强制使用 PIC 和 PIE（位置无关代码）
->
-> 内存地址空间组成：Program, Stack, vDSO, Dylibs
->
-> 通过 Channel 传递启动信息和句柄
-
-## 加载 ELF 文件
-
-> 简单介绍 ELF 文件的组成结构
->
-> 实现 VmarExt::load_from_elf 函数
-
-## 系统调用的跳板：vDSO
-
-### Zircon vDSO 的作用
-
-vDSO是访问Zircon内核系统调用的唯一方法。动态共享对象是ELF格式的共享库的一个术语。它是虚拟的，它不是从文件系统中的ELF文件加载的。vDSO映像由内核直接提供。
-
-
->
-> 如何修改 vDSO 源码（libzircon）将 syscall 改为函数调用
->
-> 加载 vDSO 时修改 vDSO 代码段，填入跳转地址
-
-### vDSO
-VDSO （Dynamic Shared Object），Zircon vDSO 是 Zircon 内核访问系统调用的唯一方法。它不是从文件系统中的ELF文件加载的，而是由内核直接提供 vDSO 镜像。
-
-> 它是一个用户态运行的代码，被封装成 shared librarylibzircon.so elf文件。这个elf .so 文件装载不是放在文件系统中， 而是由内核提供。它被整合在内核image中。
-
-这个vdso 有2个页的大小， 放在内核中（准确说是在内核IMAGE中的一个地方）。内核启动时，会通过计算得到它所在的物理页，然后在创建用户进程时，program loader （userboot 第一个进程会用特别的方式）会把这二个物理页mapping到用户进程的虚地址进程空间，且位置是radom的和只读。进程内的程序无法修改它。
-
-### vDSO syscall
-
-当vsdo 用svc 指令后，这时CPU exception进入内核，到 expections.S 中的 sync_exception 宏（不同ELx， sync_exception的参数不一样）。然后这个 sync_exception 宏中先做一些现场保存的工作， 然后jump到 arm64_syscall_dispatcher 宏。
-
-进入arm64_syscall_dispatcher宏后， 先做一些syscall number检查，然后syscall number 跳到 call_wrapper_table 函数表中相应index项的函数中去（call_wrapper_table 像一个一维的函数指针的数组，syscall number 作index，jump到相应的wrapper syscall function 函数中去）。
-
-
-
-
-## 第一个用户程序：userboot
-
-> 实现 zircon-loader 中的 run_userboot 函数
-> 
-> 能够进入用户态并在第一个系统调用时跳转回来
