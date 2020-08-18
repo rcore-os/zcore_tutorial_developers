@@ -1,4 +1,3 @@
 # 用户程序
 
-
-zCore has a microkernel style of design. A complexity for microkernel designs is how to bootstrap the initial userspace processes. Often this is accomplished by having the kernel implement minimal versions of filesystem reading and program loading just for the purpose of bootstrapping, even when those kernel facilities are never used after boot time. zCore takes a different approach.
+zCore采用的是微内核的设计风格。微内核设计的一个复杂问题是”如何引导初始用户空间进程“。通常这是通过让内核实现最小版本的文件系统读取和程序加载来实现的引导。
