@@ -3,14 +3,26 @@
 ## 用户态启动流程
 
 ### 流程概要
- kernel 
- -> userboot  (decompress bootsvc LZ4 format) 
- -> bootsvc   (可执行文件bin/component_manager)
- -> component_manager 
- -> sh / device_manager
+ kernel   
+ -> userboot  (decompress bootsvc LZ4 format)   
+ -> bootsvc   (可执行文件bin/component_manager)  
+ -> component_manager   
+ -> sh / device_manager  
 
 ### ZBI(Zircon Boot Image)
 ZBI是一种简单的容器格式，它内嵌了许多可由引导加载程序 `BootLoader`传递的项目内容，包括硬件特定的信息、提供引导选项的内核“命令行”以及RAM磁盘映像(通常是被压缩的)。`ZBI`中包含了初始文件系统 `bootfs`，内核将 `ZBI` 完整传递给 `userboot`，由它负责解析并对其它进程提供文件服务。
+
+
+### BOOTFS
+
+基本的`BOOTFS`映像可满足用户空间程序运行需要的所有依赖:
++ 可执行文件
++ 共享库
++ 数据文件  
+  
+以上列出的内容还可实现设备驱动或更高级的文件系统，从而能够从存储设备或网络设备上访问读取更多的代码和数据。
+
+在系统自引导结束后，`BOOTFS`中的文件就会成为一个挂载在根目录`/boot`上的只读文件系统树(并由bootsvc提供服务)。随后`userboot`将从`BOOTFS`加载第一个真正意义上的用户程序。
 
 
 
@@ -88,16 +100,8 @@ pub fn run_userboot(images: &Images<impl AsRef<[u8]>>, cmdline: &str) -> Arc<Pro
 
 
 
-### BOOTFS
 
-基本的BOOTFS映像可满足用户空间程序运行需要的所有依赖:
-+ 可执行文件
-+ 共享库
-+ 数据文件  
-  
-以上列出的内容还可实现设备驱动或更高级的文件系统，从而能够从存储设备或网络设备上访问读取更多的代码和数据。
 
-在系统自引导结束后，BOOTFS中的文件就会成为一个挂载在根目录`/boot`上的只读文件系统树(并由bootsvc提供服务)。
 
 ### bootsvc
 bootsvc 通常是usermode加载的第一个程序（与userboot不同，userboot是由内核加载的）。bootsvc提供了几种系统服务：
