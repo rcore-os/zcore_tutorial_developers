@@ -13,29 +13,42 @@
 ZBI是一种简单的容器格式，它内嵌了许多可由引导加载程序 `BootLoader`传递的项目内容，包括硬件特定的信息、提供引导选项的内核“命令行”以及RAM磁盘映像(通常是被压缩的)。`ZBI`中包含了初始文件系统 `bootfs`，内核将 `ZBI` 完整传递给 `userboot`，由它负责解析并对其它进程提供文件服务。
 
 
-### BOOTFS
+### bootfs
 
-基本的`BOOTFS`映像可满足用户空间程序运行需要的所有依赖:
+基本的`bootfs`映像可满足用户空间程序运行需要的所有依赖:
 + 可执行文件
 + 共享库
 + 数据文件  
   
 以上列出的内容还可实现设备驱动或更高级的文件系统，从而能够从存储设备或网络设备上访问读取更多的代码和数据。
 
-在系统自引导结束后，`BOOTFS`中的文件就会成为一个挂载在根目录`/boot`上的只读文件系统树(并由bootsvc提供服务)。随后`userboot`将从`BOOTFS`加载第一个真正意义上的用户程序。
+在系统自引导结束后，`bootfs`中的文件就会成为一个挂载在根目录`/boot`上的只读文件系统树(并由bootsvc提供服务)。随后`userboot`将从`bootfs`加载第一个真正意义上的用户程序。
 
 
 
 ### USERBOOT
 
-> zircon-loader/src/lib.rs
-
 #### 使用userboot的原因 
 
-内嵌在ZBI中的`RAM磁盘映像`通常采用[LZ4](https://github.com/lz4/lz4)格式压缩。解压后将继续得到`BOOTFS`格式的磁盘镜像。这是一种简单的只读文件系统格式，它只列出文件名。且对于每个文件，可分别列出它们在BOOTFS映像中的偏移量和大小(这两个值都必须是页面对齐的，并且限制在32位)。
+在Zircon中，内嵌在ZBI中的`RAM磁盘映像`通常采用[LZ4](https://github.com/lz4/lz4)格式压缩。解压后将继续得到`bootfs`格式的磁盘镜像。这是一种简单的只读文件系统格式，它只列出文件名。且对于每个文件，可分别列出它们在BOOTFS映像中的偏移量和大小(这两个值都必须是页面对齐的，并且限制在32位)。
 
 由于kernel中没有包含任何可用于解压缩[LZ4](https://github.com/lz4/lz4)格式的代码，也没有任何用于解析BOOTFS格式的代码。所有这些工作都是由称为`userboot`的第一个用户空间进程完成的。
 
+
+> zCore中未找到解压缩bootfs的相关实现，  
+> 但是能够在scripts/gen-prebuilt.sh中找到ZBI中确实有bootfs的内容  
+> 且现有的zCore实现中有关所载入的ZBI方式如下：  
+
+> zircon-loader/src/lib.rs
+```rust
+    // zbi
+    let zbi_vmo = {
+        let vmo = VmObject::new_paged(images.zbi.as_ref().len() / PAGE_SIZE + 1);
+        vmo.write(0, images.zbi.as_ref()).unwrap();
+        vmo.set_name("zbi");
+        vmo
+    };
+```
 #### userboot是什么
 userboot是一个普通的用户空间进程。它只能像任何其他进程一样通过vDSO执行标准的系统调用，并受完整vDSO执行制度的约束。
 
@@ -59,8 +72,7 @@ userboot被构建为一个ELF动态共享对象(DSO,dynamic shared object)，使
 在编译阶段中，系统调用的入口点符号表会从vDSO ELF映像中提取出来，随后写入到链接脚本的符号定义中。利用每个符号在vDSO映像中相对固定的偏移地址，可在链接脚本提供的`_end`符号的固定偏移量处，定义该符号。通过这种方式，userboot代码可以直接调用到放在内存中，其映像本身之后的，每个确切位置上的vDSO入口点。
 
 相关代码:
->zircon-loader/src/lib.rs
-
+> zircon-loader/src/lib.rs
 ```rust
 pub fn run_userboot(images: &Images<impl AsRef<[u8]>>, cmdline: &str) -> Arc<Process> {
     ...
@@ -97,9 +109,53 @@ pub fn run_userboot(images: &Images<impl AsRef<[u8]>>, cmdline: &str) -> Arc<Pro
 }
 ```
 
+#### 从`bootfs`加载第一个真正意义上的用户程序。
+主要相关代码：
+> zircon-loader/src/lib.rs
+> zircon-object/src/util/elf_loader.rs
 
+当`userboot`解压完毕`ZBI`中的`bootfs`后，`userboot`将继续从`bootfs`载入程序文件运行。
 
+Zircon中具体的实现流程如下：
+1. `userboot`检查从内核接收到的环境字符串，这些字符串代表了一定的内核命令行。
+    > zircon-loader/src/main.rs
+    ```rust
+    #[async_std::main]
+    async fn main() {
+        kernel_hal_unix::init();
+        init_logger();
 
+        let opt = Opt::from_args();
+        let images = open_images(&opt.prebuilt_path).expect("failed to read file");
+
+        let proc: Arc<dyn KernelObject> = run_userboot(&images, &opt.cmdline);
+        drop(images);
+
+        proc.wait_signal(Signal::USER_SIGNAL_0).await;
+    }
+    ```
+   在Zircon中：
+   + 若该字符串内容为```userboot=file```，那么该`file`将作为第一个真正的用户进程加载。
+   + 若没有这样的选项，则`userboot`将选择的默认文为`bin/bootsvc`。该文件可在`bootfs`中找到。
+  
+   而在zCore的实现中：
+   + ..
+2. 为了加载上述文件，userboot实现了一个功能齐全的ELF程序加载器
+   `zircon_object::util::elf_loader::load_from_elf`
+    ```rust
+        // userboot
+        let (entry, userboot_size) = {
+            let elf = ElfFile::new(images.userboot.as_ref()).unwrap();
+            let size = elf.load_segment_size();
+            let vmar = vmar
+                .allocate(None, size, VmarFlags::CAN_MAP_RXW, PAGE_SIZE)
+                .unwrap();
+            vmar.load_from_elf(&elf).unwrap();
+            (vmar.addr() + elf.header.pt2.entry_point() as usize, size)
+        };
+    ```
+3. 然后userboot以随机地址加载vDSO。它使用标准约定启动新进程，并给它传递一个channel句柄和vDSO基址。
+   `zircon_object::util::elf_loader::map_from_elf`
 
 
 
