@@ -200,12 +200,30 @@ vDSO被映射到新进程的同时会将映像的`base address`通过`arg2`参�
 
 #### 如何修改 vDSO 源码（libzircon）将 syscall 改为函数调用
 
+有关代码
++ 参考仓库[README.MD](https://github.com/PanQL/zircon/blob/master/README.md)
+    > ···解析代码依赖的compile_commands.json将会随build过程生成到**out**文件夹···
++ 配合zCore中的有关脚本与补丁文件
+    - scripts/gen-prebuilt.sh
+    - scripts/zircon-libos.patch
++ https://github.com/PanQL/zircon/blob/master/system/ulib/zircon/syscall-entry.h
++ https://github.com/PanQL/zircon/blob/master/system/ulib/zircon/syscalls-x86-64.S
++ zircon-loader/src/lib.rs#line 83-93
+```rust
 
+        #[cfg(feature = "std")]
+        {
+            let offset = elf
+                .get_symbol_address("zcore_syscall_entry")
+                .expect("failed to locate syscall entry") as usize;
+            let syscall_entry = &(kernel_hal_unix::syscall_entry as usize).to_ne_bytes();
+            // fill syscall entry x3
+            vdso_vmo.write(offset, syscall_entry).unwrap();
+            vdso_vmo.write(offset + 8, syscall_entry).unwrap();
+            vdso_vmo.write(offset + 16, syscall_entry).unwrap();
+        }
 
-
-
-
-
+```
 
 <!-- 当vsdo 用svc 指令后，这时CPU exception进入内核，到 expections.S 中的 sync_exception 宏（不同ELx， sync_exception的参数不一样）。然后这个 sync_exception 宏中先做一些现场保存的工作， 然后jump到 arm64_syscall_dispatcher 宏。
 
