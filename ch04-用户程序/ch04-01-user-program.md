@@ -117,9 +117,9 @@ bootsvc 通常是usermode加载的第一个程序（与userboot不同，userboot
 + 从bootfs加载的加载程序服务
 
 
-todo：
-### bin/component_manager
-### sh / device_manager  
+### todo：  
++ bin/component_manager  
++ sh / device_manager    
 
 
 
@@ -144,7 +144,7 @@ todo：
 
 ## 加载 ELF 文件
 
-> 简单介绍 ELF 文件的组成结构
+> 简单介绍 ELF 文件的组成结构（[ch04-02-load-elf.md](（ch04-02-load-elf.md）)）
 >
 > 实现 VmarExt::load_from_elf 函数
 
@@ -158,13 +158,54 @@ todo：
 ## 系统调用的跳板：vDSO
 
 #### 介绍 vDSO 的作用
-VDSO （Dynamic Shared Object），Zircon vDSO 是 Zircon 内核访问系统调用的唯一方法。它不是从文件系统中的ELF文件加载的，而是由内核直接提供 vDSO 镜像。
 
-> 它是一个用户态运行的代码，被封装成 shared librarylibzircon.so elf文件。这个elf .so 文件装载不是放在文件系统中，而是由内核提供。它被整合在内核image中。
 
-vDSO放在内核中（准确说是在内核映像中的一个地方）。内核启动时，会通过计算得到它所在的物理页，然后在创建用户进程时，program loader（userboot 第一个进程会用特别的方式）会把这物理页mapping到用户进程的虚地址进程空间，且位置是随机和只读的。进程内的程序无法修改它。
+vDSO（virtual Dynamic Shared Object），Zircon vDSO 是 Zircon 内核访问系统调用的唯一方法(作为系统调用的跳板)。它之所以是虚拟的，是因为它不是从文件系统中的ELF文件加载的，而是由内核直接提供的vDSO镜像。
 
-#### vDSO syscall 如何修改 vDSO 源码（libzircon）将 syscall 改为函数调用
+Zircon vDSO是访问Zircon系统调用的唯一手段。vDSO表示虚拟动态共享对象。(动态共享对象是一个术语，用于ELF格式的共享库。)它是虚拟的，因为它不是从文件系统中的ELF文件加载的。相反，vDSO映像由内核直接提供。
+
+> zCore/src/main.rs
+```rust
+#[cfg(feature = "zircon")]
+fn main(ramfs_data: &[u8], cmdline: &str) {
+    use zircon_loader::{run_userboot, Images};
+    let images = Images::<&[u8]> {
+        userboot: include_bytes!("../../prebuilt/zircon/x64/userboot.so"),
+        vdso: include_bytes!("../../prebuilt/zircon/x64/libzircon.so"),
+        zbi: ramfs_data,
+    };
+    let _proc = run_userboot(&images, cmdline);
+    run();
+}
+```
+
+它是一个用户态运行的代码，被封装成`prebuilt/zircon/x64/libzircon.so`文件。这个.so 文件装载不是放在文件系统中，而是由内核提供。它被整合在内核image中。
+
+vDSO映像在编译时嵌入到内核中。内核将它作为只读VMO公开给用户空间。内核启动时，会通过计算得到它所在的物理页。当`program loader`设置了一个新进程后，使该进程能够进行系统调用的唯一方法是：`program loader`在新进程的第一个线程开始运行之前，将vDSO映射到新进程的虚拟地址空间（地址随机）。因此，在启动其他能够进行系统调用的进程的每个进程自己本身都必须能够访问vDSO的VMO。
+
+> zircon-loader/src/lib.rs#line167  
+
+```rust
+    proc.start(&thread, entry, sp, Some(handle), 0, thread_fn)
+        .expect("failed to start main thread");
+    proc
+```
+> zircon-object/src/task/process.rs#line189  
+
+```rust
+    thread.start(entry, stack, handle_value as usize, arg2, thread_fn)
+```
+
+vDSO被映射到新进程的同时会将映像的`base address`通过`arg2`参数传递给新进程中的第一个线程。通过这个地址，可以在内存中找到ELF的文件头，该文件头指向可用于查找系统调用符号名的其他ELF程序模块。
+
+#### 如何修改 vDSO 源码（libzircon）将 syscall 改为函数调用
+
+
+
+
+
+
+
 
 <!-- 当vsdo 用svc 指令后，这时CPU exception进入内核，到 expections.S 中的 sync_exception 宏（不同ELx， sync_exception的参数不一样）。然后这个 sync_exception 宏中先做一些现场保存的工作， 然后jump到 arm64_syscall_dispatcher 宏。
 
