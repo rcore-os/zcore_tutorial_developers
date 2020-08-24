@@ -116,8 +116,7 @@ bootsvc 通常是usermode加载的第一个程序（与userboot不同，userboot
   - 共享库和数据文件（包括设备驱动程序或更高级的文件系统的实现）
 + 从bootfs加载的加载程序服务
 
-
-### todo：  
+ 
 + bin/component_manager  
 + sh / device_manager    
 
@@ -153,7 +152,7 @@ bootsvc 通常是usermode加载的第一个程序（与userboot不同，userboot
 
 vDSO（virtual Dynamic Shared Object），Zircon vDSO 是 Zircon 内核访问系统调用的唯一方法(作为系统调用的跳板)。它之所以是虚拟的，是因为它不是从文件系统中的ELF文件加载的，而是由内核直接提供的vDSO镜像。
 
-Zircon vDSO是访问Zircon系统调用的唯一手段。vDSO表示虚拟动态共享对象。(动态共享对象是一个术语，用于ELF格式的共享库。)它是虚拟的，因为它不是从文件系统中的ELF文件加载的。相反，vDSO映像由内核直接提供。
+<!-- Zircon vDSO是访问Zircon系统调用的唯一手段。vDSO表示虚拟动态共享对象。(动态共享对象是一个术语，用于ELF格式的共享库。)它是虚拟的，因为它不是从文件系统中的ELF文件加载的。相反，vDSO映像由内核直接提供。 -->
 
 > zCore/src/main.rs
 ```rust
@@ -201,7 +200,6 @@ vDSO被映射到新进程的同时会将映像的`base address`通过`arg2`参�
 + https://github.com/PanQL/zircon/blob/master/system/ulib/zircon/syscalls-x86-64.S
 + zircon-loader/src/lib.rs#line 83-93
 ```rust
-
         #[cfg(feature = "std")]
         {
             let offset = elf

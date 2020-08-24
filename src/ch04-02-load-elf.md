@@ -1,4 +1,3 @@
-Editing...
 # [zCore程序(ELF加载与动态链接)](https://fuchsia.dev/fuchsia-src/concepts/booting/program_loading)
 
 zCore内核不直接参与正常程序的加载，而是提供了一些用户态程序加载时可用的模块。如虚拟内存对象(VMO)、进程(processes)、虚拟地址空间（VMAR）和线程(threads)。 

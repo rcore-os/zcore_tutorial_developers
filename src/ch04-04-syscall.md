@@ -19,7 +19,6 @@
 
 
 ----
-# Editing...
 # 系统调用
 > [package]
 name = "zircon-syscall"
