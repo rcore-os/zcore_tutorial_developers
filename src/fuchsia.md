@@ -6,7 +6,8 @@
 
 [开发 Fuchsia 的目的](https://www.digitaltrends.com/mobile/google-fuchsia-os-news/)  
 
-Fuchsia 是谷歌试图使用单一操作系统去统一整个生态圈的一种尝试，Fuchsia 的目标是能够在谷歌的技术保护伞下，运行于智能手机、智能音响、笔记本电脑等任何合适的设备之上。据某消息人士透露，谷歌计划在未来三年内，先让 Fuchsia 在智能音响和其他智能家具设备上运行起来，然后再转移到笔记本电脑等更大的设备上，并最终取代 Android 成为世界上最大的移动操作系统。  
+Fuchsia 是谷歌试图使用单一操作系统去统一整个生态圈的一种尝试。Fuchsia 的目标是能够在谷歌的技术保护伞下，运行于智能手机、智能音响、笔记本电脑等任何合适的设备之上，同时为关键业务应用的生产设备和产品提供动力，因此Fuchsia并不是一个简单意义上实验操作系统概念研究的小试验场。据某消息人士透露，谷歌计划在未来三年内，先让 Fuchsia 在智能音响和其他智能家具设备上运行起来，然后再转移到笔记本电脑等更大的设备上，并最终取代 Android 成为世界上最大的移动操作系统。  
+
 
 ## Fuchsia OS
 
@@ -37,27 +38,31 @@ Zircon内核提供系统调用来管理进程、线程、虚拟内存、进程�
 
 > 目前，有一些临时的系统调用已经用于早期的升级工作，随着长期`syscall API`和`ABI surface`的最终完善，这些临时系统调用将在未来被删除。
 
-这是由参与[2019年操作系统专题训练大实验-Fuchsia OS调研](http://os.cs.tsinghua.edu.cn/oscourse/OsTrain2019/g1)的成员整理出的一版可独立存在的zircon代码，并可能减小仓库体积。[[仓库链接]](https://github.com/PanQL/zircon)
+如下仓库链接中，这是由参与[2019年操作系统专题训练大实验-Fuchsia OS调研](http://os.cs.tsinghua.edu.cn/oscourse/OsTrain2019/g1)的成员整理出的一版可独立存在的zircon代码，并可能减小仓库体积。[[仓库链接]](https://github.com/PanQL/zircon)
 
-如下是一些重要的Zircon内核模块
-#### 任务管理: Jobs, Processes 和 Threads.
-线程代表在一个地址空间中执行的线程(CPU寄存器、堆栈等)，这个地址空间是由它们存在的进程所拥有的。进程由作业拥有，作业定义了各种资源限制。Job属于父Job，一直到根Job，根Job是内核在引导时创建的，并被传递到userboot(第一个开始执行的用户空间进程)。如果没有Job句柄，进程中的线程就不可能创建另一个进程或另一个Job。
+> 一些典型Zircon内核模块提供的功能
+#### 运行代码: Jobs, Processes 和 Threads.
+线程代表在一个地址空间中执行的线程(CPU寄存器、堆栈等)，这个地址空间是由它们存在的进程所拥有的。进程由作业（Job）所拥有，作业定义了各种资源限制。Job属于父Job，一直到根Job，根Job是由内核在引导时创建的，并被传递到userboot(第一个开始执行的用户空间进程)。程序的加载则是由内核层之上的用户空间工具和协议提供的。 
 
-#### 信息传递机制
-Message Passing: Sockets and Channels
+> 如果没有Job句柄，进程中的线程就不可能创建另一个进程或另一个Job。
 
-#### 对象与信号
-Objects and Signals
+#### 信息传递机制：Sockets and Channels  
 
-#### 虚拟内存对象
-虚拟内存对象（VMO）表示内存的一组物理页面，或者潜在的页面(这些页面将按需惰性地创建/填充)。
-VMOs也可以通过sys_vmo_read()和sys_vmo_write()直接读取和写入。因此，对于“创建VMO，将数据集写入其中，并将其交给另一个进程使用”这样的一次性操作，可以避免将它们映射到地址空间的成本。
+`Socket`和`Channel`都是两端点间双向的IPC对象。创建`Socket`或`Channel`将返回两个句柄  
 
-#### 内存管理机制 
-Address Space Management
++ `Socket`是面向流的，数据可以从中以一个或多个字节的单位写入或读出  
+  
++ `Channel`是面向数据报文的，其最大消息大小由`ZX_CHANNEL_MAX_MSG_BYTES`给出，并且还可能有多达`ZX_CHANNEL_MAX_MSG_HANDLES`个附加到消息的句柄。
 
-####
-Futexes
+#### 虚拟内存对象：VMOs  
+
+虚拟内存对象（VMO）表示内存的一组物理页面，或者潜在的页面(这些页面将按需迟滞性地被创建或填充)。VMOs也可以通过`sys_vmo_read()`和`sys_vmo_write()`直接读取和写入。因此可以避免类似“创建VMO，将数据集写入其中，并将其交给另一个进程使用”这样的一次性操作，从而增加运行时的开销。
+
+#### 内存管理机制：Address Space Management
+
+虚拟地址空间(VMARs)提供了一个管理进程地址空间的抽象。在进程创建时，可实现向进程创建者提供根VMAR的句柄。该句柄引用了一个`VMAR`，它跨越了整个地址空间。这个空间可以通过`zx_vmar_map()`和`zx_vmar_allocate()`系统调用接口进行划分。`zx_vmar_allocate()`可用于生成新的`VMARs`(称为子区域)，这些子VMARs可将部分地址空间继续组合。
+
+
 
 ## 参考资料：
 1. Fuchsia Overview：
@@ -66,19 +71,22 @@ https://fuchsia.dev/fuchsia-src/concepts
 2. 开发 Fuchsia 的目的是什么？
 https://www.digitaltrends.com/mobile/google-fuchsia-os-news/
 
+3. Fuchsia 操作系统的四层结构设计:
+https://fuchsia-china.com/the-4-layers-of-fuchsia/
+
 
 ## Fuchsia Partner
 
-ARM
-GlobalEdge Software
-Huawei
-Imagination Technologies
-MediaTek
-Oppo
-Qualcomm
-Samsung
-Sharp
-Sony
-STMicro
-Unisoc
-Xiaomi
++ ARM
++ GlobalEdge Software
++ Huawei
++ Imagination Technologies
++ MediaTek
++ Oppo
++ Qualcomm
++ Samsung
++ Sharp
++ Sony
++ STMicro
++ Unisoc
++ Xiaomi
