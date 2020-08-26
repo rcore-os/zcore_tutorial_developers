@@ -190,15 +190,39 @@ vDSO被映射到新进程的同时会将映像的`base address`通过`arg2`参�
 
 #### 如何修改 vDSO 源码（libzircon）将 syscall 改为函数调用
 
-有关代码
+##### 有关代码
 + 参考仓库[README.MD](https://github.com/PanQL/zircon/blob/master/README.md)
     > ···解析代码依赖的compile_commands.json将会随build过程生成到**out**文件夹···
-+ 配合zCore中的有关脚本与补丁文件
+
+##### 如何生成imgs(VDSO,ZBI)
+1. clone Zircon代码仓库（从fuchsia官方目录中分离出来的zircon代码）：
+    ```shell  
+    $ git clone https://github.com/PanQL/zircon.git
+    ```
+2. 关于Zircon的编译运行  
+为了减小仓库体积，我们将prebuilt目录进行了大幅调整;因此运行之前请下载google预编译好的clang，解压后放到某个权限合适的位置，然后在代码的[这个位置](https://github.com/PanQL/zircon/blob/master/public/gn/toolchain/clang.gni#L16)将**绝对目录**修改为对应位置。  
+   * [云盘下载链接](https://cloud.tsinghua.edu.cn/d/7ab1d87feecd4b2cb3d8/)  
+   * 官方CIPD包下载链接如下  
+       * [Linux](https://chrome-infra-packages.appspot.com/p/fuchsia/clang/linux-amd64/+/oEsFSe99FkcDKVxZkAY0MKi6C-yYOan1m-QL45N33W8C)  
+       * [Mac](https://chrome-infra-packages.appspot.com/p/fuchsia/clang/mac-amd64/+/Lc64-GTi4kihzkCnW8Vaa80TWTnMpZY0Fy6AqChmqvcC)    
+
+
+3. 当前只支持在Mac OS及Linux x64上进行编译。  
+默认的`make run`和`make build`是针对x64架构的，如果希望编译运行arm架构的zircon，那么需要：
+   * 修改out/args.gn中的`legacy-image-x64`为`legacy-image-arm64`  
+   * 重新`make build`  
+   * `make runarm`  
+
+   
+
+
+
+4. 配合zCore中的有关脚本与补丁文件
     - scripts/gen-prebuilt.sh
     - scripts/zircon-libos.patch
-+ https://github.com/PanQL/zircon/blob/master/system/ulib/zircon/syscall-entry.h
-+ https://github.com/PanQL/zircon/blob/master/system/ulib/zircon/syscalls-x86-64.S
-+ zircon-loader/src/lib.rs#line 83-93
+   + https://github.com/PanQL/zircon/blob/master/system/ulib/zircon/syscall-entry.h
+   + https://github.com/PanQL/zircon/blob/master/system/ulib/zircon/syscalls-x86-64.S
+   + zircon-loader/src/lib.rs#line 83-93
 ```rust
         #[cfg(feature = "std")]
         {
