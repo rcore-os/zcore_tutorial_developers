@@ -52,6 +52,21 @@ ZBI是一种简单的容器格式，它内嵌了许多可由引导加载程序 `
 #### userboot是什么
 userboot是一个普通的用户空间进程。它只能像任何其他进程一样通过vDSO执行标准的系统调用，并受完整vDSO执行制度的约束。
 
+> 唯一一个由内核态“不规范地”创建的用户进程   
+> 
+> userboot具体实现的功能有：  
+> 
+> + 读取channel中的cmdline、handles 
+> 
+> + 解析zbi
+> 
+> + 解压BOOTFS 
+> 
+> + 选定下一个程序启动 自己充当loader，然后“死亡”  
+> 
+> + 用“规范的方式”启动下一个程序
+
+
 userboot被构建为一个ELF动态共享对象(DSO,dynamic shared object)，使用了与vDSO相同的布局。与vDSO一样，userboot的ELF映像在编译时就被嵌入到内核中。其简单的布局意味着加载它不需要内核在引导时解析ELF的文件头。内核只需要知道三件事:
 1. 只读段`segment`的大小
 2. 可执行段`segment`的大小
@@ -149,7 +164,6 @@ bootsvc 通常是usermode加载的第一个程序（与userboot不同，userboot
 
 #### 介绍 vDSO 的作用
 
-
 vDSO（virtual Dynamic Shared Object），Zircon vDSO 是 Zircon 内核访问系统调用的唯一方法(作为系统调用的跳板)。它之所以是虚拟的，是因为它不是从文件系统中的ELF文件加载的，而是由内核直接提供的vDSO镜像。
 
 <!-- Zircon vDSO是访问Zircon系统调用的唯一手段。vDSO表示虚拟动态共享对象。(动态共享对象是一个术语，用于ELF格式的共享库。)它是虚拟的，因为它不是从文件系统中的ELF文件加载的。相反，vDSO映像由内核直接提供。 -->
@@ -200,7 +214,8 @@ vDSO被映射到新进程的同时会将映像的`base address`通过`arg2`参�
     $ git clone https://github.com/PanQL/zircon.git
     ```
 2. 关于Zircon的编译运行  
-为了减小仓库体积，我们将prebuilt目录进行了大幅调整;因此运行之前请下载google预编译好的clang，解压后放到某个权限合适的位置，然后在代码的[这个位置](https://github.com/PanQL/zircon/blob/master/public/gn/toolchain/clang.gni#L16)将**绝对目录**修改为对应位置。  
+为了减小仓库体积，我们将prebuilt目录进行了大幅调整;因此运行之前请下载google预编译好的clang，解压后放到某个权限合适的位置，然后在代码的[这个位置](https://github.com/PanQL/zircon/blob/master/public/gn/toolchain/clang.gni#L16)将**绝对目录**修改为对应位置。 
+   clang下载链接:
    * [云盘下载链接](https://cloud.tsinghua.edu.cn/d/7ab1d87feecd4b2cb3d8/)  
    * 官方CIPD包下载链接如下  
        * [Linux](https://chrome-infra-packages.appspot.com/p/fuchsia/clang/linux-amd64/+/oEsFSe99FkcDKVxZkAY0MKi6C-yYOan1m-QL45N33W8C)  
