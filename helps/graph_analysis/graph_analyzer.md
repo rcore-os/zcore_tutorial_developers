@@ -90,7 +90,7 @@ fi
 
 ```
 
-1. 这个callgraph.dot文件包含了图中所有的结点和边的信息，可以利用`dot`命令将它转变为可视化的png/pdf/svg...等格式的图片，方便阅读。  
+7. 这个callgraph.dot文件包含了图中所有的结点和边的信息，可以利用`dot`命令将它转变为可视化的png/pdf/svg...等格式的图片，方便阅读。  
    如：  
 ```sh
 $ dot -Tsvg callgraph.dot -o callgraph.svg
