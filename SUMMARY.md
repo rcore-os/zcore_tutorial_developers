@@ -2,7 +2,7 @@
 
 [简明 zCore 教程](README.md)
 [zCore 整体结构和设计模式](zcore-intro.md)
-[Fuchsia OS 和 Zircon 微内核](src/fuchsia.md)
+[Fuchsia OS 和 Zircon 微内核](src/fuchsia.md)  
 [Fuchsia 安全原理](src/fuchsia-sec.md)
 
 - [内核对象](src/ch01-00-object.md)

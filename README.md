@@ -28,7 +28,8 @@ zcore_tutorial文档撰写工作以及单元测试工作组
 
 # 文件仓库目录描述
 
-[初步文档仓库(本仓库)](https://github.com/rcore-os/zcore_tutorial_developers)
+[初步文档仓库(本仓库)](https://github.com/rcore-os/zcore_tutorial_developers)  
+
 [目标文档仓库(release版本的仓库)](https://github.com/rcore-os/zCore-Tutorial)
 
 本仓库中的目录说明：  
