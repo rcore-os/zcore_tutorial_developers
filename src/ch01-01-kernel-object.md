@@ -12,7 +12,7 @@
 
 通过阅读文档，我们了解到与内核对象相关的三个重要概念：**对象（Object），句柄（Handle），权限（Rights）**。它们在 Zircon 内核中的角色和关系如下图所示：
 
-![](img/ch01-01-kernel-object.png)
+![](../img/ch01-01-kernel-object.png)
 
 简单来说：
 
@@ -349,7 +349,7 @@ impl KObjectBase {
 pub struct DummyObject;
 ```
 
-![](img/kobject.png)
+![](../img/kobject.png)
 
 ## 总结
 

@@ -6,6 +6,9 @@ zcore_tutorial文档撰写工作以及单元测试工作组
 ## 主要要求
 每个人尽量把自己学到的东西写成一个文档，做到低耦合、规范化，命名清晰。后人在前人的基础上迭代修改，最后项目完成的时候进一步整理一下，可以merge到zcore仓库。
 
+
+
+
 # 主要相关链接
 [2020年操作系统专题训练大实验-zCore文档WiKi页面](http://os.cs.tsinghua.edu.cn/oscourse/OsTrain2020/g2)
 
@@ -21,29 +24,56 @@ zcore_tutorial文档撰写工作以及单元测试工作组
 
 [pql，zCore操作系统内核的设计与实现](https://raw.githubusercontent.com/wiki/rcore-os/zCore/files/pql-thesis.pdf)
 
-[Rust中的Async /Await](https://github.com/rustcc/writing-an-os-in-rust/blob/master/12-async-await.md)
+[Rust中的Async /Await](https://github.com/rustcc/writing-an-os-in-rust/blob/master/12-async-await.md)  
+
+# 文件仓库目录描述
+
+[初步文档仓库(本仓库)](https://github.com/rcore-os/zcore_tutorial_developers)
+[目标文档仓库(release版本的仓库)](https://github.com/rcore-os/zCore-Tutorial)
+
+本仓库中的目录说明：  
+
+- `src/chxx`文件夹分别对应每一章节的内容
+- `help`目录是方便zCore程序分析的相关文档
+- `drafts`是指等待被整理进入`src/chxx`文件夹中的内容
+- `img`存放`src/chxx`文档中的所有图片,图表等
+- `SUMMARY.md`是对zcore_tutorial文档中各个章节的索引目录  
+  
+
 # 现有的zcore_tutorial文档主要从这些方面展开描述
-0. Fuchsia OS 和 Zircon 微内核
 
+[简明 zCore 教程](README.md)
+[zCore 整体结构和设计模式](zcore-intro.md)
+[Fuchsia OS 和 Zircon 微内核](src/fuchsia.md)
+[Fuchsia 安全原理](src/fuchsia-sec.md)
 
-1. 内核对象
-1.1. 初识内核对象   
-1.2. 对象管理器：Process 对象           <zircon-object\src\task\process.rs>  job/process/thread  
-1.3. 对象传送器：Channel 对象           <zircon-object\src\ipc\channel.rs>  
-2. 任务管理(荣悦同，方澳阳)                         
-2.1. Zircon 任务管理体系                <zircon-object\src\task>   
-2.2. ``硬件抽象层``与``异步运行时``     <kernel_hal(bare)> async 《zCore 操作系统内核的设计与实现》中有相关描述  
-2.3. 线程管理：Thread 对象              <zircon-object\src\task\thread.rs>std::thread(8.4日)  
-2.4. 进程管理：Process 与 Job 对象      <zircon-object\src\task\job.rs>  <zircon-object\src\task\job_policy.rs>  
-3. 内存管理(卢睿博，姚宇飞)  
-3.1. Zircon 内存管理模型  
-3.2. 物理内存：VMO 对象                 <zircon-object\src\vm\vmo\physical.rs>   
-3.3. 虚拟内存：VMAR 对象                <zircon-object\src\vm\vmar.rs>  
-4. 用户程序(张文龙，彭晓)  
-4.1. Zircon 用户程序                
-4.2. 加载 ELF 文件                      <zircon-object\src\util\elf_loader.rs>  
-4.3. 上下文切换                       
-4.4. 系统调用                           <zircon-syscall\src>
+- [内核对象](src/ch01-00-object.md)
+    - [初识内核对象](src/ch01-01-kernel-object.md)
+    - [对象管理器：Process 对象](src/ch01-02-process-object.md)
+    - [对象传送器：Channel 对象](src/ch01-03-channel-object.md)
+
+- [任务管理](src/ch02-00-task.md)
+    - [Zircon 任务管理体系](src/ch02-01-zircon-task.md)
+    - [进程管理：Process 与 Job 对象](src/ch02-02-process-job-object.md)
+    - [线程管理：Thread 对象](src/ch02-03-thread-object.md)
+
+- [内存管理](src/ch03-00-memory.md)
+    - [Zircon 内存管理模型](src/ch03-01-zircon-memory.md)
+    - [物理内存：VMO 对象](src/ch03-02-vmo.md)
+    - [物理内存：按页分配的 VMO](src/ch03-03-vmo-paged.md)
+    - [虚拟内存：VMAR 对象](src/ch03-04-vmar.md)
+
+- [用户程序](src/ch04-00-userspace.md)
+    - [Zircon 用户程序](src/ch04-01-user-program.md)
+    - [加载 ELF 文件](src/ch04-02-load-elf.md)
+    - [上下文切换](src/ch04-03-context-switch.md)
+    - [Zircon 系统调用](src/ch04-04-syscall.md)
+
+- [信号和等待](src/ch05-00-signal-and-waiting.md)
+    - [等待内核对象的信号](src/ch05-01-wait-signal.md)
+    - [同时等待多个信号：Port 对象](src/ch05-02-port-object.md)
+    - [实现更多：EventPair, Timer 对象](src/ch05-03-more-signal-objects.md)
+    - [用户态同步互斥：Futex 对象](src/ch05-04-futex-object.md)
 
 # zCore项目整理架构图
 ![file](http://www.nuanyun.cloud/wp-content/uploads/2020/08/5f2a17fc7d7b3.png)
@@ -52,7 +82,3 @@ zcore_tutorial文档撰写工作以及单元测试工作组
 
 
 
-# 文件目录描述
-
-- [Zircon内核概念](/FuchsiaOS和Zircon微内核简介/Zircon内核概念.md)介绍了zircon中的一些常见的概念, 熟悉概念之后在`Tutorial`中不再赘述
-- `chxx`文件夹分别对应每一章节的内容
