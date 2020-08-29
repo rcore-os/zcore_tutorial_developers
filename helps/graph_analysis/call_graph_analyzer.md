@@ -45,15 +45,12 @@ $ llvm9/build/bin/opt -dot-callgraph zircon_loader-aee642b49f6df21b.bc
 #!/bin/bash
 #cd COMPILER_DIR
 #./project_init_scripts/init_llvm9.sh
-
 set e, x
 COMPILER_DIR=$(readlink -f `dirname $0`/..)
 PROJECT_ROOT_DIR=`dirname ${COMPILER_DIR}`
 THIS_DIR=`dirname \`readlink -f $0\``
 LLVM9_DIR=${PROJECT_ROOT_DIR}/llvm9/
 SYM_LINK='ln -sfn'
-
-
 #################################  SETUP LLVM9/CLANG9  #################################
 ######################################-project llvm##########################################
 if [ !  -e ${LLVM9_DIR} ]
@@ -85,7 +82,6 @@ then
        -DCMAKE_CXX_FLAGS=-fstandalone-debug
   ninja
 fi
-
 ################################################################################
 
 ```
